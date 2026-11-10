@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segurança de Senhas</title>
+
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: Arial, sans-serif;
+}
+
+body {
+min-height: 100vh;
+background: linear-gradient(135deg, #10172a, #263c65);
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 20px;
+color: white;
+}
+
+.container {
+background: #ffffff;
+color: #222;
+width: 100%;
+max-width: 500px;
+padding: 35px;
+border-radius: 18px;
+box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+}
+
+h1 {
+text-align: center;
+color: #243c68;
+margin-bottom: 12px;
+}
+
+.descricao {
+text-align: center;
+color: #666;
+margin-bottom: 25px;
+font-size: 14px;
+}
+
+label {
+font-weight: bold;
+display: block;
+margin-bottom: 10px;
+}
+
+.campo {
+display: flex;
+gap: 8px;
+}
+
+input {
+flex: 1;
+padding: 13px;
+border: 1px solid #ccc;
+border-radius: 8px;
+font-size: 15px;
+outline: none;
+min-width: 0;
+}
+
+input:focus {
+border-color: #315da8;
+}
+
+.mostrar {
+border: none;
+background: #e5ebf7;
+color: #243c68;
+padding: 10px;
+border-radius: 8px;
+cursor: pointer;
+}
+
+.botoes {
+display: flex;
+gap: 10px;
+margin-top: 18px;
+}
+
+button {
+cursor: pointer;
+}
+
+.analisar, .limpar {
+flex: 1;
+padding: 13px;
+border: none;
+border-radius: 8px;
+font-weight: bold;
+}
+
+.analisar {
+background: #315da8;
+color: white;
+}
+
+.limpar {
+background: #e8e8e8;
+color: #333;
+}
+
+.analisar:hover {
+background: #24477f;
+}
+
+.resultado {
+margin-top: 25px;
+padding: 18px;
+background: #f3f5f9;
+border-radius: 10px;
+}
+
+.resultado h2 {
+font-size: 18px;
+margin-bottom: 12px;
+color: #243c68;
+}
+
+.barra {
+height: 10px;
+background: #ddd;
+border-radius: 10px;
+overflow: hidden;
+margin: 12px 0;
+}
+
+.progresso {
+height: 100%;
+width: 0%;
+background: #e74c3c;
+transition: 0.3s;
+}
+
+#forca {
+font-weight: bold;
+}
+
+ul {
+list-style: none;
+margin-top: 15px;
+}
+
+li {
+margin: 10px 0;
+font-size: 14px;
+}
+
+.ok {
+color: #16834b;
+}
+
+.erro {
+color: #d94343;
+}
+
+.dicas {
+margin-top: 20px;
+font-size: 13px;
+color: #666;
+line-height: 1.6;
+}
+
+footer {
+text-align: center;
+margin-top: 22px;
+font-size: 12px;
+color: #888;
+}
+
+@media (max-width: 450px) {
+.container {
+padding: 23px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔐 Segurança de Senhas</h1>
+
+<p class="descricao">
+Descubra se sua senha é segura e proteja suas informações.
+</p>
+
+<label for="senha">Digite sua senha:</label>
+
+<div class="campo">
+<input type="password" id="senha"
+placeholder="Digite sua senha">
+
+<button class="mostrar" onclick="mostrarSenha()">
+Mostrar
+</button>
+</div>
+
+<div class="botoes">
+<button class="analisar" onclick="analisarSenha()">
+Analisar senha
+</button>
+
+<button class="limpar" onclick="limparSenha()">
+Limpar
+</button>
+</div>
+
+<div class="resultado">
+
+<h2>Resultado da análise</h2>
+
+<p>Força da senha: <span id="forca">Não analisada</span></p>
+
+<div class="barra">
+<div class="progresso" id="progresso"></div>
+</div>
+
+<p id="pontuacao">Pontuação: 0/6</p>
+
+<p id="entropia">Entropia: --</p>
+
+<ul id="criterios">
+<li>○ Pelo menos 12 caracteres</li>
+<li>○ Uma letra maiúscula</li>
+<li>○ Uma letra minúscula</li>
+<li>○ Um número</li>
+<li>○ Um símbolo especial</li>
+<li>○ Sem sequências óbvias</li>
+</ul>
+
+</div>
+
+<div class="dicas">
+<strong>Dicas para uma senha segura:</strong>
+<p>• Utilize letras maiúsculas e minúsculas.</p>
+<p>• Adicione números e símbolos.</p>
+<p>• Evite datas de nascimento e nomes.</p>
+<p>• Não utilize a mesma senha em todos os sites.</p>
+</div>
+
+<footer>
+Projeto desenvolvido para o curso Start by Alura.
+</footer>
+
+</div>
+
+<script>
+
+function mostrarSenha() {
+const campo = document.getElementById("senha");
+const botao = document.querySelector(".mostrar");
+
+if (campo.type === "password") {
+campo.type = "text";
+botao.textContent = "Ocultar";
+} else {
+campo.type = "password";
+botao.textContent = "Mostrar";
+}
+}
+
+function analisarSenha() {
+
+const senha = document.getElementById("senha").value;
+
+if (senha.length === 0) {
+alert("Digite uma senha para analisar!");
+return;
+}
+
+let pontos = 0;
+let criterios = [];
+
+const verificacoes = [
+{
+nome: "Pelo menos 12 caracteres",
+teste: senha.length >= 12
+},
+{
+nome: "Uma letra maiúscula",
+teste: /[A-Z]/.test(senha)
+},
+{
+nome: "Uma letra minúscula",
+teste: /[a-z]/.test(senha)
+},
+{
+nome: "Um número",
+teste: /[0-9]/.test(senha)
+},
+{
+nome: "Um símbolo especial",
+teste: /[^A-Za-z0-9]/.test(senha)
+},
+{
+nome: "Sem sequências óbvias",
+teste: !/(1234|abcd|qwerty|password|1111)/i.test(senha)
+}
+];
+
+verificacoes.forEach(item => {
+if (item.teste) {
+pontos++;
+criterios.push(
+`<li class="ok">✔ ${item.nome}</li>`
+);
+} else {
+criterios.push(
+`<li class="erro">✘ ${item.nome}</li>`
+);
+}
+});
+
+let forca = "";
+let cor = "";
+
+if (pontos <= 2) {
+forca = "Fraca";
+cor = "#e74c3c";
+} else if (pontos <= 4) {
+forca = "Moderada";
+cor = "#e6a817";
+} else {
+forca = "Forte";
+cor = "#16834b";
+}
+
+document.getElementById("forca").textContent = forca;
+document.getElementById("forca").style.color = cor;
+
+document.getElementById("progresso").style.width =
+(pontos / 6 * 100) + "%";
+
+document.getElementById("progresso").style.background = cor;
+
+document.getElementById("pontuacao").textContent =
+"Pontuação: " + pontos + "/6";
+
+let conjunto = 0;
+
+if (/[a-z]/.test(senha)) conjunto += 26;
+if (/[A-Z]/.test(senha)) conjunto += 26;
+if (/[0-9]/.test(senha)) conjunto += 10;
+if (/[^A-Za-z0-9]/.test(senha)) conjunto += 32;
+
+let entropia = conjunto > 0
+? (senha.length * Math.log2(conjunto)).toFixed(2)
+: "0";
+
+document.getElementById("entropia").textContent =
+"Entropia teórica: " + entropia + " bits";
+
+document.getElementById("criterios").innerHTML =
+criterios.join("");
+}
+
+function limparSenha() {
+
+document.getElementById("senha").value = "";
+
+document.getElementById("forca").textContent = "Não analisada";
+document.getElementById("forca").style.color = "#222";
+
+document.getElementById("progresso").style.width = "0%";
+
+document.getElementById("pontuacao").textContent =
+"Pontuação: 0/6";
+
+document.getElementById("entropia").textContent =
+"Entropia: --";
+
+document.getElementById("criterios").innerHTML = `
+<li>○ Pelo menos 12 caracteres</li>
+<li>○ Uma letra maiúscula</li>
+<li>○ Uma letra minúscula</li>
+<li>○ Um número</li>
+<li>○ Um símbolo especial</li>
+<li>○ Sem sequências óbvias</li>
+`;
+
+}
+
+</script>
+
+</body>
+</html>
